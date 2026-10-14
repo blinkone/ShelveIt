@@ -26,3 +26,7 @@ docs/test-sharecode.txt
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Local build redirect out of OneDrive
+Directory.Build.props
+ShelveIt/Library/

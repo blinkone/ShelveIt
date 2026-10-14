@@ -16,7 +16,7 @@ namespace ShelveIt.Systems
 {
 	// Community sharing: server list and detail, publishing, reports and share codes. The server is
 	// contacted only from the triggers below, never at startup or in the background.
-	public class CommunityUISystem : UISystemBase
+	public partial class CommunityUISystem : UISystemBase
 	{
 		private const string kGroup = ShelveItUISystem.kGroup;
 		private const int kListDescription = 160;

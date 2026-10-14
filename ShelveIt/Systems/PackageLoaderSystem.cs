@@ -19,7 +19,7 @@ namespace ShelveIt.Systems
 	// Loads newly downloaded asset packages without a restart, through the game's own path:
 	// enable the package in the active playset, then ParadoxModsDataSource.Populate(), which makes
 	// GameManager add the prefabs. Nothing runs per frame unless a package is being followed.
-	public class PackageLoaderSystem : UISystemBase
+	public partial class PackageLoaderSystem : UISystemBase
 	{
 		private const string kGroup = ShelveItUISystem.kGroup;
 

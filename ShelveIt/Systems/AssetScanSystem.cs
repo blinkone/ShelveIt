@@ -19,7 +19,7 @@ namespace ShelveIt.Systems
 {
 	// Disabled unless a scan was requested. One frame announces the scan, the next one takes the
 	// snapshot, then the system only polls the background task until it is done.
-	public class AssetScanSystem : GameSystemBase
+	public partial class AssetScanSystem : GameSystemBase
 	{
 		public const string kIdle = "idle";
 		public const string kScanning = "scanning";

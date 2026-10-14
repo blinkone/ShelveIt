@@ -20,7 +20,7 @@ namespace ShelveIt.Systems
 {
 	// All work happens in trigger callbacks and scan state changes. OnUpdate is left to the base class,
 	// so nothing runs per frame whether the panel is open or not.
-	public class ShelveItUISystem : UISystemBase
+	public partial class ShelveItUISystem : UISystemBase
 	{
 		public const string kGroup = "ShelveIt";
 		public const string kSuggestionPrefix = "suggestion:";
