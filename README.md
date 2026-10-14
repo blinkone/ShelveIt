@@ -22,7 +22,7 @@ If you run hundreds of asset packages, finding a coherent set of buildings for o
 
 ## Install
 
-Subscribe to Shelve It on Paradox Mods, in game or on the website. Find It is installed with it as a dependency. The toolbar button opens the panel.
+Subscribe to [Shelve It on Paradox Mods](https://mods.paradoxplaza.com/mods/163296/Windows), in game or on the website. Find It is installed with it as a dependency. The toolbar button opens the panel.
 
 ## Privacy
 
