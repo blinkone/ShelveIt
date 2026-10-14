@@ -1,0 +1,1 @@
+TypeScript and React UI of Shelve It (binding group `ShelveIt`). Build with `npm run build`; the bundle goes to `build/` and the C# project deploys it. See `preview/webpack.preview.js` for the browser preview.

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "packages": {
+    "91930": [
+      "french"
+    ],
+    "91931": [
+      "german"
+    ],
+    "92859": [
+      "british"
+    ],
+    "94094": [
+      "japanese"
+    ],
+    "98960": [
+      "eastern-european"
+    ],
+    "100454": [
+      "chinese"
+    ],
+    "101898": [
+      "north-american"
+    ],
+    "101948": [
+      "north-american"
+    ],
+    "121130": [
+      "dutch"
+    ]
+  },
+  "prefabs": {}
+}

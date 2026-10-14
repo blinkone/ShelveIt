@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "ShelveIt/UI/preview/index.html"
+        ],
+        "createdAt": "2026-10-13T18:30:40.170Z",
+        "reason": "Claude: file inspected, no animation or scrolling content present; browser preview fixture, not shipped in the mod"
+      }
+    ]
+  }
+}

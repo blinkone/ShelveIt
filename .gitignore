@@ -1,0 +1,28 @@
+# Build outputs
+bin/
+obj/
+node_modules/
+ShelveIt/UI/build/
+**/UI/preview/dist/
+
+# Preview data generated locally (game stylesheet classes and fixtures)
+**/UI/preview/data/
+
+# IDE and local tooling
+.vs/
+.vscode/
+*.user
+.claude/
+.impeccable/review/
+
+# Private: community server backend
+server/
+
+# Private: preview screenshots and test data
+docs/preview/
+docs/test-sharecode.txt
+
+# OS noise
+Thumbs.db
+Desktop.ini
+.DS_Store

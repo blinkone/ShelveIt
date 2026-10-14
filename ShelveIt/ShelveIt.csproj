@@ -1,0 +1,79 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <AssemblyName>ShelveIt</AssemblyName>
+    <RootNamespace>ShelveIt</RootNamespace>
+    <Version>0.1.0</Version>
+    <Nullable>disable</Nullable>
+    <DebugType>portable</DebugType>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);UI\**;Data\**</DefaultItemExcludes>
+
+    <Configurations>Debug;Release</Configurations>
+
+    <!-- Game install folder: set the CS2_INSTALL environment variable or pass -p:CS2_INSTALL=...
+         (default: the standard Steam path). ManagedPath and DeployDir can also be overridden. -->
+    <CS2_INSTALL Condition="'$(CS2_INSTALL)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</CS2_INSTALL>
+    <ManagedPath Condition="'$(ManagedPath)' == ''">$(CS2_INSTALL)\Cities2_Data\Managed</ManagedPath>
+    <DeployDir Condition="'$(DeployDir)' == ''">$(USERPROFILE)\AppData\LocalLow\Colossal Order\Cities Skylines II\Mods\ShelveIt</DeployDir>
+
+    <!-- Paradox Mods publishing. The official toolchain (installed from the game: Options > Modding)
+         sets the CSII_TOOLPATH user variable; without it the project builds standalone. -->
+    <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
+    <CSIIToolPath>$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))</CSIIToolPath>
+    <CSIIToolPath Condition="'$(CSIIToolPath)' == ''">$(CSII_TOOLPATH)</CSIIToolPath>
+    <UseModToolchain Condition="'$(UseModToolchain)' == '' AND '$(CSIIToolPath)' != '' AND Exists('$(CSIIToolPath)\Mod.targets')">true</UseModToolchain>
+  </PropertyGroup>
+
+  <!-- Imports must come after the PropertyGroup above. The toolchain's targets post-process the
+       assembly, deploy to its local mods folder (overriding DeployDir) and run the ModPublisher. -->
+  <Import Project="$(CSIIToolPath)\Mod.props" Condition="'$(UseModToolchain)' == 'true'" />
+  <Import Project="$(CSIIToolPath)\Mod.targets" Condition="'$(UseModToolchain)' == 'true'" />
+
+  <ItemGroup>
+    <Reference Include="Game"><HintPath>$(ManagedPath)\Game.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.Core"><HintPath>$(ManagedPath)\Colossal.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.Collections"><HintPath>$(ManagedPath)\Colossal.Collections.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.Logging"><HintPath>$(ManagedPath)\Colossal.Logging.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.IO.AssetDatabase"><HintPath>$(ManagedPath)\Colossal.IO.AssetDatabase.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.UI"><HintPath>$(ManagedPath)\Colossal.UI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.UI.Binding"><HintPath>$(ManagedPath)\Colossal.UI.Binding.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.Localization"><HintPath>$(ManagedPath)\Colossal.Localization.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.Mathematics"><HintPath>$(ManagedPath)\Colossal.Mathematics.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.PSI.Common"><HintPath>$(ManagedPath)\Colossal.PSI.Common.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedPath)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Burst"><HintPath>$(ManagedPath)\Unity.Burst.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Collections"><HintPath>$(ManagedPath)\Unity.Collections.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Entities"><HintPath>$(ManagedPath)\Unity.Entities.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Mathematics"><HintPath>$(ManagedPath)\Unity.Mathematics.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Colossal.PSI.PdxSdk"><HintPath>$(ManagedPath)\Colossal.PSI.PdxSdk.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="PDX.SDK"><HintPath>$(ManagedPath)\PDX.SDK.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule"><HintPath>$(ManagedPath)\UnityEngine.UnityWebRequestModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(ManagedPath)\UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(ManagedPath)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Locale\*.json" />
+    <None Include="Data\*.json" />
+  </ItemGroup>
+
+  <!-- Deploys the mod as a local mod. Data files and the UI bundle (if built) go along. -->
+  <Target Name="DeployMod" AfterTargets="Build">
+    <ItemGroup>
+      <DeployBinaries Include="$(TargetDir)$(TargetName).dll;$(TargetDir)$(TargetName).pdb" />
+      <DeployData Include="$(ProjectDir)Data\*.json" />
+      <DeployUI Include="$(ProjectDir)UI\build\**\*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(DeployDir);$(DeployDir)\Data" />
+    <Copy SourceFiles="@(DeployBinaries)" DestinationFolder="$(DeployDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DeployData)" DestinationFolder="$(DeployDir)\Data" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DeployUI)" DestinationFiles="@(DeployUI->'$(DeployDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Deployed ShelveIt to $(DeployDir)" />
+  </Target>
+
+</Project>

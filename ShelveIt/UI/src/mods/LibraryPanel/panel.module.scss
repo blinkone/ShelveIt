@@ -1,0 +1,1706 @@
+// The panel is drawn with the game's own interface system (see DESIGN.md at the project root).
+// Colours, strokes and font sizes are the game's CSS variables, so the panel follows the active
+// UI theme and the UI scale. Sizes are in rem, which the game scales with the screen.
+//
+// Layout is flexbox with margins only (no grid, no gap, no sticky). The UI engine rejects
+// shorthand declarations that contain a CSS variable and has no :disabled pseudo class: borders
+// and radii with variables are written as longhands through the mixins below, and disabled
+// controls get a .disabled class.
+//
+// A few values have no variable in the game's stylesheet and are copied from the vanilla rules
+// they imitate. They are collected here so a game update is one place to check.
+
+// Secondary text: the game writes rgba(255, 255, 255, 0.7) literally in its own lists and search
+// fields. Its --textColorDim variables are plain white in the default theme.
+$text-secondary: rgba(255, 255, 255, 0.7);
+$text-placeholder: rgba(255, 255, 255, 0.5);
+
+// tool-button.module.scss and game-dropdown.module.scss (tool options panel).
+$control-color: #0f1013;
+$control-color-hover: #1d1f25;
+$control-color-active: #23262d;
+$control-radius: 4rem;
+$control-size: 28rem;
+
+// mouse-tool-options.module.scss, number field.
+$field-color: rgba(15, 16, 19, 0.5);
+
+// item-grid.module.scss, build menu tile.
+$tile-color: rgba(98, 128, 138, 0.4);
+$tile-radius: 8rem;
+
+$sidebar-width: 300rem;
+$row-height: 28rem;
+$gutter: 12rem;
+
+@mixin radius($value) {
+  border-top-left-radius: $value;
+  border-top-right-radius: $value;
+  border-bottom-right-radius: $value;
+  border-bottom-left-radius: $value;
+}
+
+@mixin border-color($color) {
+  border-top-color: $color;
+  border-right-color: $color;
+  border-bottom-color: $color;
+  border-left-color: $color;
+}
+
+@mixin border($width, $color) {
+  border-top-width: $width;
+  border-right-width: $width;
+  border-bottom-width: $width;
+  border-left-width: $width;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  @include border-color($color);
+}
+
+@mixin edge($side, $color) {
+  border-#{$side}-width: var(--stroke1);
+  border-#{$side}-style: solid;
+  border-#{$side}-color: $color;
+}
+
+@mixin one-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Panels
+
+.manager {
+  width: 1060rem;
+}
+
+.palette {
+  width: 292rem;
+}
+
+.marker {
+  width: 0;
+  height: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: row;
+  height: 640rem;
+}
+
+
+.spacer {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.row-gap {
+  margin-left: 6rem;
+}
+
+// Title bar. The button sits beside the game's close button and has its size and hover.
+
+.title-row {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.title-icon {
+  flex-shrink: 0;
+  width: 32rem;
+  height: 32rem;
+  margin-right: 10rem;
+}
+
+.title-text {
+  flex: 1;
+  text-align: center;
+  @include one-line;
+}
+
+.title-button {
+  flex-shrink: 0;
+  width: 24rem;
+  height: 24rem;
+  margin-left: 10rem;
+  @include centered;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.title-glyph {
+  width: 18rem;
+  height: 18rem;
+  --iconColor: white;
+}
+
+.palette-switch {
+  flex: 1;
+  min-width: 0;
+  text-transform: none;
+}
+
+// Icons tinted the way the game tints its glyphs.
+
+.glyph {
+  flex-shrink: 0;
+  width: 16rem;
+  height: 16rem;
+  --iconColor: var(--textColor);
+}
+
+// Scan progress
+
+.progress {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 6rem $gutter;
+  @include edge(bottom, var(--dividerColor));
+}
+
+.progress-label {
+  flex-shrink: 0;
+  margin-right: $gutter;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.progress-track {
+  flex: 1;
+  height: 4rem;
+  border-radius: 2rem;
+  background-color: var(--dividerColor);
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 30%;
+  height: 100%;
+  border-radius: 2rem;
+  background-color: var(--progressColor);
+  animation: progress-slide 1.4s linear infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(340%);
+  }
+}
+
+// Left column. It carries the darker surface of the game's panel headers.
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: $sidebar-width;
+  height: 100%;
+  background-color: var(--panelColorDark);
+  @include edge(right, var(--dividerColor));
+}
+
+.tab-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// The game's scrollable takes its inner padding from these variables; padding on the element
+// itself would shrink the scrolling box.
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  --contentPaddingVertical: 4rem;
+  --contentPaddingHorizontal: 8rem;
+}
+
+.row,
+.all-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  height: $row-height;
+  padding: 0 8rem;
+  margin-bottom: 1rem;
+  border-radius: 3rem;
+  color: var(--textColor);
+
+  &:hover {
+    background-color: var(--hoverColorNormal);
+  }
+
+  &:active {
+    background-color: var(--activeColorNormal);
+  }
+
+  &.selected,
+  &.selected:hover {
+    background-color: var(--selectedColor);
+  }
+}
+
+.all-row {
+  height: 32rem;
+  margin: 8rem 8rem 0 8rem;
+  font-weight: bold;
+}
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fontSizeS);
+  @include one-line;
+}
+
+// Counts line up in one right aligned column.
+.row-count {
+  flex-shrink: 0;
+  min-width: 34rem;
+  margin-left: 6rem;
+  font-size: var(--fontSizeXS);
+  text-align: right;
+  color: $text-secondary;
+}
+
+.selected .row-count {
+  color: var(--textColor);
+}
+
+// The two lists share the game's tab row.
+
+.tab-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 10rem;
+  padding: 0 8rem;
+  --minTabWidth: 0rem;
+  --tabGap: 4rem;
+  @include edge(bottom, var(--dividerColor));
+}
+
+.tab-bar .tab {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 7rem 6rem 5rem 6rem;
+  font-size: var(--fontSizeS);
+}
+
+// Stands in for tabs.module.scss when the game module cannot be found.
+.tab-fallback {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-top-left-radius: 9rem;
+  border-top-right-radius: 9rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+
+  & + & {
+    margin-left: 4rem;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  &:global(.selected) {
+    background-color: var(--selectedColor);
+    color: white;
+  }
+}
+
+.tab-count {
+  flex-shrink: 0;
+  margin-left: 6rem;
+  font-size: var(--fontSizeXS);
+  opacity: 0.8;
+}
+
+.new-library {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 8rem 8rem 4rem 8rem;
+}
+
+.source-marker {
+  flex-shrink: 0;
+  @include centered;
+  width: 16rem;
+  height: 16rem;
+  margin-left: 6rem;
+}
+
+.source-glyph {
+  width: 12rem;
+  height: 12rem;
+  --iconColor: var(--accentColorLight);
+}
+
+// Suggestion tree. Rows have a fixed height so a long tree stays cheap to lay out.
+
+.tree-row {
+  padding-left: 4rem;
+  padding-right: 8rem;
+}
+
+// The three root groups read as section headings.
+.tree-root {
+  height: 30rem;
+  margin-top: 6rem;
+  margin-bottom: 2rem;
+  background-color: var(--sectionHeaderColor);
+  font-weight: bold;
+  text-transform: uppercase;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  .row-name {
+    font-size: var(--fontSizeXS);
+  }
+}
+
+// Groups below the roots organize the tree and cannot be accepted.
+.tree-group .row-name {
+  color: $text-secondary;
+}
+
+.tree-toggle {
+  flex-shrink: 0;
+  @include centered;
+  width: 20rem;
+  height: 100%;
+}
+
+.tree-chevron {
+  width: 10rem;
+  height: 10rem;
+  --iconColor: #{$text-secondary};
+}
+
+.tree-thumb {
+  flex-shrink: 0;
+  width: 20rem;
+  height: 20rem;
+  margin-left: 2rem;
+  border-radius: 3rem;
+  background-color: $field-color;
+}
+
+.tree-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+// Controls
+
+.button {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: $control-size;
+  padding: 0 10rem;
+  font-size: var(--fontSizeS);
+  white-space: nowrap;
+  color: var(--textColor);
+  background-color: $control-color;
+  border-radius: $control-radius;
+
+  &:hover {
+    background-color: $control-color-hover;
+  }
+
+  &:active {
+    background-color: $control-color-active;
+  }
+
+  &:global(.selected),
+  &:global(.selected):hover {
+    background-color: var(--selectedColor);
+  }
+
+  &.danger {
+    background-color: var(--negativeColor);
+  }
+
+  &.danger:hover {
+    background-color: var(--buttonStrokeRed);
+  }
+}
+
+.disabled,
+.disabled:hover,
+.disabled:active {
+  opacity: 0.4;
+  background-color: $control-color;
+}
+
+.button-glyph {
+  width: 14rem;
+  height: 14rem;
+  margin-right: 6rem;
+}
+
+// On top of the game's tool button class.
+.square {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.square-fallback {
+  @include centered;
+  width: $control-size;
+  height: $control-size;
+  background-color: $control-color;
+  border-radius: $control-radius;
+
+  &:hover {
+    background-color: $control-color-hover;
+  }
+
+  &:active {
+    background-color: $control-color-active;
+  }
+
+  &:global(.selected) {
+    background-color: var(--selectedColor);
+  }
+}
+
+// Without an icon the button shows its label and grows to fit it.
+.square.square-text {
+  width: auto;
+  padding: 0 10rem;
+  font-size: var(--fontSizeS);
+  color: var(--textColor);
+}
+
+.square-glyph {
+  width: 16rem;
+  height: 16rem;
+}
+
+// number-badge.module.scss, without the pulse.
+.badge {
+  flex-shrink: 0;
+  min-width: 16rem;
+  height: 16rem;
+  margin-left: 6rem;
+  padding: 0 4rem;
+  border-radius: 8rem;
+  font-size: var(--fontSizeXS);
+  font-weight: bold;
+  line-height: 16rem;
+  text-align: center;
+  color: var(--commonBlack);
+  background-color: var(--accentColorNormal);
+}
+
+.square .badge {
+  position: absolute;
+  top: -5rem;
+  right: -5rem;
+  margin-left: 0;
+}
+
+.round {
+  flex-shrink: 0;
+  @include centered;
+  width: 20rem;
+  height: 20rem;
+  margin-left: 4rem;
+  border-radius: 50%;
+  background-color: $control-color;
+
+  &:hover {
+    background-color: var(--accentColorDark);
+  }
+
+  &.round-danger:hover {
+    background-color: var(--negativeColor);
+  }
+}
+
+.round-glyph {
+  width: 10rem;
+  height: 10rem;
+}
+
+.text-input {
+  flex: 1;
+  min-width: 0;
+  height: $control-size;
+  padding: 0 8rem;
+  font-size: var(--fontSizeS);
+  color: var(--textColor);
+  border-radius: $control-radius;
+  @include border(var(--stroke1), transparent);
+  background-color: $field-color;
+
+  &:focus {
+    @include border-color(var(--accentColorNormal));
+  }
+
+  // The game's text input shows the placeholder as a value with this class.
+  &:global(.placeholder) {
+    color: $text-placeholder;
+  }
+}
+
+// The game's dropdown, sized to sit in a row of buttons.
+
+.select-toggle {
+  flex-shrink: 0;
+  height: $control-size;
+  max-width: 240rem;
+  padding: 0 8rem;
+  font-size: var(--fontSizeS);
+}
+
+.select-toggle-fallback {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--textColor);
+  background-color: $control-color;
+  border-radius: 3rem;
+
+  &:hover {
+    background-color: $control-color-hover;
+  }
+}
+
+.select-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  @include one-line;
+}
+
+.select-menu {
+  min-width: 180rem;
+  max-width: 340rem;
+}
+
+.select-menu-fallback {
+  background-color: $control-color;
+  border-radius: 3rem;
+  @include border(var(--stroke1), var(--dividerColor));
+  font-size: var(--fontSizeS);
+}
+
+.select-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  &:global(.selected) {
+    background-color: var(--selectedColor);
+  }
+}
+
+.select-item-fallback {
+  padding: 4rem 7rem;
+  color: var(--textColor);
+  border-radius: 3rem;
+
+  &:hover {
+    background-color: var(--hoverColorNormal);
+  }
+}
+
+.select-item-name {
+  flex: 1;
+  min-width: 0;
+  @include one-line;
+}
+
+.select-item-note {
+  flex-shrink: 0;
+  margin-left: 12rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.select-empty {
+  padding: 6rem 8rem;
+  font-size: var(--fontSizeS);
+  color: $text-secondary;
+}
+
+// Empty, loading and missing states
+
+.state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24rem;
+  text-align: center;
+}
+
+.state-compact {
+  flex: none;
+  padding: 20rem 12rem;
+}
+
+.state-title {
+  font-size: var(--fontSizeL);
+  color: var(--textColor);
+}
+
+.state-compact .state-title {
+  font-size: var(--fontSizeM);
+}
+
+.state-text {
+  max-width: 420rem;
+  margin-top: 6rem;
+  font-size: var(--fontSizeS);
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+.state-action {
+  margin-top: 14rem;
+}
+
+// Right side
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// The palette has no row to stretch in, so its height is set here.
+.main.palette-body {
+  flex: none;
+  height: 474rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 48rem;
+  padding: 0 $gutter;
+}
+
+.header-name {
+  min-width: 0;
+  font-size: var(--fontSizeL);
+  font-weight: bold;
+  color: var(--textColor);
+  @include one-line;
+}
+
+.renamable {
+  padding: 2rem 6rem;
+  margin-left: -6rem;
+  border-radius: 3rem;
+
+  &:hover {
+    background-color: var(--hoverColorNormal);
+  }
+}
+
+.rename-input {
+  flex: 1;
+  max-width: 360rem;
+  font-size: var(--fontSizeM);
+}
+
+.header-note {
+  flex-shrink: 0;
+  margin-left: $gutter;
+  padding: 2rem 8rem;
+  border-radius: 3rem;
+  font-size: var(--fontSizeXS);
+  text-transform: uppercase;
+  color: var(--textColor);
+  background-color: var(--sectionHeaderColor);
+}
+
+.confirm-text {
+  flex-shrink: 0;
+  margin-right: 10rem;
+  font-size: var(--fontSizeS);
+  color: var(--textColor);
+}
+
+// Search, sort and filters
+
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 0 $gutter 6rem $gutter;
+}
+
+.filter-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 34rem;
+}
+
+// Room for the count badge of the filter button, which hangs over its corner.
+.palette .filter-bar {
+  padding: 6rem 10rem 4rem 8rem;
+}
+
+.search-field {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+  height: $control-size;
+  border-radius: $control-radius;
+  background-color: $field-color;
+}
+
+.search-glyph {
+  width: 14rem;
+  height: 14rem;
+  margin-left: 8rem;
+  --iconColor: #{$text-secondary};
+}
+
+.search-field .search-input {
+  background-color: transparent;
+}
+
+.search-clear {
+  flex-shrink: 0;
+  @include centered;
+  width: 20rem;
+  height: 20rem;
+  margin-right: 4rem;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: var(--hoverColorBright);
+  }
+}
+
+.search-clear-glyph {
+  width: 12rem;
+  height: 12rem;
+}
+
+.sort-select {
+  margin-left: 6rem;
+}
+
+.chip-row,
+.chip-wrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chip-row {
+  margin-top: 4rem;
+}
+
+// Chips are small toggles in the shape of the game's tool buttons.
+.chip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 250rem;
+  height: 24rem;
+  padding: 0 8rem;
+  margin: 0 4rem 4rem 0;
+  font-size: var(--fontSizeXS);
+  color: var(--textColor);
+  border-radius: $control-radius;
+  background-color: $field-color;
+
+  &:hover {
+    background-color: $control-color-hover;
+  }
+
+  &:active {
+    background-color: $control-color-active;
+  }
+}
+
+.chip-numeric {
+  padding: 0 6rem;
+}
+
+.chip-selected,
+.chip-selected:hover,
+.chip-active {
+  background-color: var(--selectedColor);
+}
+
+.chip-active:hover {
+  background-color: var(--selectedColor-hover);
+}
+
+.chip-clear,
+.chip-more {
+  background-color: transparent;
+  color: var(--accentColorLight);
+}
+
+.chip-label {
+  min-width: 0;
+  @include one-line;
+}
+
+.chip-facet {
+  flex-shrink: 0;
+  margin-right: 5rem;
+  color: $text-secondary;
+}
+
+.chip-count {
+  flex-shrink: 0;
+  margin-left: 6rem;
+  color: $text-secondary;
+}
+
+.chip-selected .chip-count {
+  color: var(--textColor);
+}
+
+.chip-cross {
+  width: 9rem;
+  height: 9rem;
+  margin-left: 6rem;
+}
+
+.facet-area {
+  flex-shrink: 0;
+  max-height: 236rem;
+  margin-top: 4rem;
+  border-radius: $control-radius;
+  background-color: var(--sectionBackgroundColor);
+  --contentPaddingVertical: 8rem;
+  --contentPaddingHorizontal: 10rem;
+}
+
+.facet-area-compact {
+  max-height: 168rem;
+  --contentPaddingVertical: 6rem;
+  --contentPaddingHorizontal: 8rem;
+}
+
+// One facet per line: a fixed label column, then its options.
+.facet {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.facet-title {
+  flex-shrink: 0;
+  width: 96rem;
+  padding-right: 8rem;
+  font-size: var(--fontSizeXS);
+  line-height: 24rem;
+  color: $text-secondary;
+  @include one-line;
+}
+
+.facet-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+// Palette: the label sits above its options and takes no column.
+.facet-compact {
+  flex-direction: column;
+  margin-bottom: 4rem;
+
+  .facet-title {
+    width: auto;
+    line-height: 18rem;
+  }
+}
+
+.facet-input {
+  flex: none;
+  width: 220rem;
+  max-width: 100%;
+  height: 24rem;
+  margin-bottom: 4rem;
+  font-size: var(--fontSizeXS);
+}
+
+.more-filters {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 26rem;
+  margin: 2rem 6rem 4rem -6rem;
+  padding: 0 6rem;
+  border-radius: 3rem;
+  font-size: var(--fontSizeXS);
+
+  &:hover {
+    background-color: var(--hoverColorNormal);
+  }
+}
+
+.more-glyph {
+  width: 10rem;
+  height: 10rem;
+  margin-right: 6rem;
+}
+
+.more-label {
+  flex-shrink: 0;
+  color: var(--accentColorLight);
+}
+
+.more-list {
+  flex: 1;
+  min-width: 0;
+  margin-left: 10rem;
+  color: $text-secondary;
+  @include one-line;
+}
+
+// Result count and the actions on the whole result
+
+.result-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  height: 40rem;
+  padding: 0 $gutter;
+  @include edge(top, var(--dividerColor));
+  @include edge(bottom, var(--dividerColor));
+}
+
+.result-count {
+  flex-shrink: 0;
+  font-size: var(--fontSizeS);
+  font-weight: bold;
+  color: var(--textColor);
+}
+
+.result-label {
+  flex-shrink: 0;
+  margin-right: 8rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.name-input {
+  flex: 1;
+  max-width: 320rem;
+}
+
+// Asset grid. Tiles are the game's build menu tiles; these variables size them.
+
+.grid-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.grid-scroll {
+  flex: 1;
+  min-height: 0;
+  --contentPaddingVertical: 8rem;
+  --contentPaddingHorizontal: 4rem;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  --assetMenuItemSize: 86rem;
+  --assetMenuImageSize: 82rem;
+  --assetMenuItemGap: 4rem;
+}
+
+.palette .grid-scroll {
+  --contentPaddingVertical: 6rem;
+  --contentPaddingHorizontal: 2rem;
+}
+
+.palette .grid {
+  --assetMenuItemSize: 60rem;
+  --assetMenuImageSize: 58rem;
+}
+
+.picker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  height: 40rem;
+  padding: 0 $gutter;
+  background-color: var(--sectionHeaderColor);
+}
+
+.picker-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fontSizeS);
+  color: var(--textColor);
+  @include one-line;
+}
+
+.picker-select {
+  margin-left: 10rem;
+}
+
+// Every tile carries the gap on its left, so wrapped rows line up.
+.tile {
+  flex-shrink: 0;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: var(--assetMenuItemGap);
+  margin-left: var(--assetMenuItemGap);
+  overflow: hidden;
+
+  &:hover .tile-button {
+    display: flex;
+  }
+}
+
+// Stands in for item-grid.module.scss when the game module cannot be found.
+.tile-fallback {
+  @include centered;
+  position: relative;
+  width: var(--assetMenuItemSize);
+  height: var(--assetMenuItemSize);
+  background-color: $tile-color;
+  border-radius: $tile-radius;
+
+  &:hover {
+    background-color: var(--hoverColorBright);
+  }
+
+  &:active {
+    background-color: var(--activeColorBright);
+  }
+}
+
+.tile-image {
+  width: var(--assetMenuImageSize);
+  height: var(--assetMenuImageSize);
+}
+
+// A tile without a picture of the asset recedes behind the ones that have one and shows the
+// name instead. A small zone or category icon says what kind of thing it is.
+.tile-stand-in {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background-color: var(--toolbarFieldColor);
+}
+
+.tile-group-icon,
+.tile-kind-icon {
+  flex-shrink: 0;
+  width: 22rem;
+  height: 22rem;
+  opacity: 0.75;
+}
+
+.tile-name {
+  flex-shrink: 0;
+  max-width: 100%;
+  max-height: 2.5em;
+  margin-top: 2rem;
+  overflow: hidden;
+  font-size: var(--fontSizeXS);
+  line-height: 1.25;
+  text-align: center;
+  word-wrap: break-word;
+  color: var(--textColor);
+}
+
+.tile-meta {
+  flex-shrink: 0;
+  max-width: 100%;
+  font-size: var(--fontSizeXXS);
+  line-height: 1.3;
+  color: $text-secondary;
+  @include one-line;
+}
+
+// Palette tiles are too small for an icon and three lines of text.
+.palette .tile-stand-in {
+  padding: 3rem;
+}
+
+.palette .tile-group-icon,
+.palette .tile-kind-icon {
+  display: none;
+}
+
+.palette .tile-name {
+  max-height: 3.6em;
+  margin-top: 0;
+  font-size: var(--fontSizeXXS);
+  line-height: 1.2;
+}
+
+.owned-marker {
+  position: absolute;
+  left: 3rem;
+  bottom: 3rem;
+  @include centered;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 50%;
+  background-color: var(--positiveColor);
+}
+
+.owned-glyph {
+  width: 8rem;
+  height: 8rem;
+  --iconColor: var(--commonBlack);
+}
+
+.tile-button {
+  display: none;
+  position: absolute;
+  right: 3rem;
+  top: 3rem;
+  width: 22rem;
+  height: 22rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: $control-color;
+
+  &:hover {
+    background-color: var(--accentColorDark);
+  }
+
+  &.tile-remove:hover {
+    background-color: var(--negativeColor);
+  }
+}
+
+.tile-button-glyph {
+  width: 10rem;
+  height: 10rem;
+}
+
+.tip {
+  display: flex;
+  flex-direction: column;
+  max-width: 320rem;
+}
+
+.tip-name {
+  font-weight: bold;
+  color: var(--accentColorLight);
+}
+
+.tip-line {
+  color: var(--textColor);
+}
+
+.tip-note {
+  color: var(--positiveColor);
+}
+
+.tip-hint {
+  margin-top: 4rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.pager {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 40rem;
+  padding: 0 $gutter;
+  @include edge(top, var(--dividerColor));
+}
+
+.pager-label {
+  min-width: 120rem;
+  margin: 0 10rem;
+  font-size: var(--fontSizeS);
+  text-align: center;
+  color: var(--textColor);
+}
+
+.palette .pager-label {
+  min-width: 64rem;
+}
+
+.pager-count {
+  flex: 1;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 6rem 10rem;
+}
+
+.scan-state {
+  flex: 1;
+  margin: 0 $gutter;
+  text-align: right;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+// Community: the third sidebar tab. Rows reuse the sidebar rows, counts sit in right aligned
+// columns like the library counts.
+
+$column-width: 76rem;
+
+.side-note {
+  margin: 12rem 8rem 0 8rem;
+  padding-top: 10rem;
+  @include edge(top, var(--dividerColor));
+}
+
+.side-note-line {
+  margin-bottom: 8rem;
+  font-size: var(--fontSizeXS);
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+.list-scroll {
+  flex: 1;
+  min-height: 0;
+  --contentPaddingVertical: 4rem;
+  --contentPaddingHorizontal: 8rem;
+}
+
+.column-head,
+.column-value {
+  flex-shrink: 0;
+  width: $column-width;
+  text-align: right;
+}
+
+.column-head {
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.column-value {
+  font-size: var(--fontSizeS);
+  color: var(--textColor);
+}
+
+// The list rows carry 4rem of their own padding, so the head lines up with the values.
+.result-bar .column-head:last-child {
+  margin-right: 4rem;
+}
+
+.community-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 48rem;
+  padding: 6rem 4rem;
+  margin-bottom: 1rem;
+  border-radius: 3rem;
+  color: var(--textColor);
+
+  &:hover {
+    background-color: var(--hoverColorNormal);
+  }
+
+  &:active {
+    background-color: var(--activeColorNormal);
+  }
+}
+
+.community-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.community-title-line,
+.community-meta-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+}
+
+.community-meta-line {
+  margin-top: 4rem;
+}
+
+.community-name {
+  flex-shrink: 1;
+  min-width: 0;
+  font-size: var(--fontSizeM);
+  font-weight: bold;
+  @include one-line;
+}
+
+.community-author,
+.header-author {
+  flex-shrink: 0;
+  margin-left: 8rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.community-description {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+  @include one-line;
+}
+
+// Tags are static labels in the shape of the filter chips.
+.tag {
+  flex-shrink: 0;
+  height: 20rem;
+  line-height: 20rem;
+  padding: 0 6rem;
+  margin-right: 4rem;
+  font-size: var(--fontSizeXS);
+  color: var(--textColor);
+  border-radius: $control-radius;
+  background-color: $field-color;
+}
+
+.tag-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 8rem;
+}
+
+.tag-row .tag {
+  margin-bottom: 4rem;
+}
+
+.header-name-after-button {
+  margin-left: 10rem;
+}
+
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  padding: 4rem 4rem 12rem 4rem;
+}
+
+.detail-description {
+  max-width: 640rem;
+  font-size: var(--fontSizeS);
+  line-height: 1.4;
+  color: var(--textColor);
+}
+
+.fact-row {
+  display: flex;
+  flex-direction: row;
+  margin-top: 12rem;
+  padding: 8rem 0;
+  @include edge(top, var(--dividerColor));
+  @include edge(bottom, var(--dividerColor));
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  min-width: 96rem;
+  margin-right: 12rem;
+}
+
+.fact-value {
+  font-size: var(--fontSizeL);
+  color: var(--textColor);
+}
+
+.fact-warn {
+  color: var(--negativeColor);
+}
+
+.fact-label {
+  margin-top: 2rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.preview-row {
+  display: flex;
+  flex-direction: row;
+  margin-top: 12rem;
+}
+
+.preview-thumb {
+  width: 82rem;
+  height: 82rem;
+  margin-right: 4rem;
+  border-radius: $tile-radius;
+  background-color: $tile-color;
+}
+
+.detail-note {
+  margin-top: 10rem;
+  font-size: var(--fontSizeXS);
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16rem;
+}
+
+.section-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 34rem;
+  padding: 0 8rem;
+  border-radius: 3rem;
+  background-color: var(--sectionHeaderColor);
+}
+
+.section-title {
+  font-size: var(--fontSizeS);
+  font-weight: bold;
+  color: var(--textColor);
+}
+
+.confirm-block {
+  display: flex;
+  flex-direction: column;
+  padding: 10rem 8rem;
+  margin-top: 4rem;
+  background-color: var(--sectionBackgroundColor);
+}
+
+.confirm-block-text {
+  font-size: var(--fontSizeS);
+  line-height: 1.4;
+  color: var(--textColor);
+}
+
+.confirm-block-actions {
+  display: flex;
+  flex-direction: row;
+  margin-top: 8rem;
+}
+
+.package-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 36rem;
+  padding: 0 8rem;
+  color: var(--textColor);
+  @include edge(bottom, var(--dividerColor));
+}
+
+.package-id {
+  flex-shrink: 0;
+  margin-left: 8rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+// Runtime loading state of a package subscribed from this panel.
+.package-state {
+  flex-shrink: 0;
+  margin-left: 8rem;
+  font-size: var(--fontSizeXS);
+  color: $text-secondary;
+}
+
+.package-state-warn {
+  color: var(--negativeColor);
+}
+
+// Outcome of the last community operation.
+.action-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 30rem;
+  padding: 4rem $gutter;
+  margin-top: 4rem;
+  background-color: var(--sectionBackgroundColor);
+}
+
+.action-line-error .action-text {
+  color: var(--negativeColor);
+}
+
+.action-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fontSizeS);
+  line-height: 1.4;
+  color: var(--textColor);
+}
+
+.action-close {
+  @include centered;
+  flex-shrink: 0;
+  width: 20rem;
+  height: 20rem;
+  margin-left: 8rem;
+  border-radius: 10rem;
+
+  &:hover {
+    background-color: var(--hoverColorNormal);
+  }
+}
+
+// Share code row in the footer.
+.code-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.code-label {
+  flex-shrink: 0;
+  margin-right: 8rem;
+  font-size: var(--fontSizeS);
+  color: var(--textColor);
+}
+
+.code-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.code-error {
+  padding: 6rem 10rem 0 10rem;
+  font-size: var(--fontSizeS);
+  color: var(--negativeColor);
+}
+
+// Sharing of a library, under its header.
+.share-bar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 6rem $gutter;
+  background-color: var(--sectionBackgroundColor);
+  @include edge(top, var(--dividerColor));
+}
+
+.share-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 34rem;
+}
+
+.share-description {
+  flex: 1;
+  min-width: 0;
+}
+
+.share-tags {
+  flex-shrink: 0;
+  width: 200rem;
+}
+
+.share-status {
+  flex: 1;
+  min-width: 0;
+  margin-right: 10rem;
+}
+
+.share-status .action-line {
+  margin-top: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
+.share-note {
+  font-size: var(--fontSizeS);
+  line-height: 1.4;
+  color: $text-secondary;
+}

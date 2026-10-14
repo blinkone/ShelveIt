@@ -1,0 +1,55 @@
+<Publish>
+	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
+	<ModId Value="" />
+	<!--Name of the mod to display to players-->
+	<DisplayName Value="Shelve It" />
+	<!--Short description of the mod-->
+	<ShortDescription Value="Organize your assets into thematic libraries, with automatic suggestions and a Find It bridge." />
+	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
+	<LongDescription>
+**Beta (0.1.0).** Shelve It scans the assets you have installed and organizes them into thematic libraries, so you can build a neighbourhood from a coherent set of buildings, props and decals without hunting for them one by one.
+
+## Features
+- **Asset scan** of every placeable asset: buildings, props, decals, from the base game and from Paradox Mods packages.
+- **Suggested libraries**, built automatically from asset metadata: regions and styles, creator packs, themed sets (historic, glass towers, airport, military and more). Accept a suggestion with one click, at any level of the tree.
+- **Find It bridge**: type `lib:name` in Find It's search to see only the assets of a library. Find It is required.
+- **Filters** in the style of Find It: type, zone, density, region, theme, asset pack, origin, package, level, lot size. Bulk add or remove the filtered result.
+- **Palette mode**: a compact view that stays open while you build. Click an asset to place it.
+- **Community sharing**: publish a library, browse and import other players' libraries, or pass a share code (`SHELVE1:...`) by chat. Missing packages can be subscribed in one step.
+
+## Privacy
+The community server is contacted only when you open the Community tab or use sharing. It receives your Paradox display name only when you publish a library, plus a random install id. Share codes work without the server. Details: https://shelveit.servermartino.com/privacy
+
+## Italiano
+Shelve It scansiona gli asset installati e li organizza in librerie tematiche, con suggerimenti automatici, filtri, modalità tavolozza e condivisione con la community tramite codici. Con Find It basta cercare `lib:nome` per vedere solo gli asset di una libreria. Interfaccia in inglese e italiano.
+	</LongDescription>
+	<!--Thumbnail-->
+	<Thumbnail Value="Properties/Thumbnail.png" />
+	<!--Screenshot, can be set multiple times-->
+	<Screenshot Value="Properties/Screenshots/01-suggestions.png" />
+	<Screenshot Value="Properties/Screenshots/02-library-filters.png" />
+	<Screenshot Value="Properties/Screenshots/03-palette.png" />
+	<Screenshot Value="Properties/Screenshots/04-community.png" />
+	<Screenshot Value="Properties/Screenshots/05-community-detail.png" />
+	<Screenshot Value="Properties/Screenshots/06-share-library.png" />
+	<Screenshot Value="Properties/Screenshots/07-library-tooltip.png" />
+	<!--Tag, can be set multiple times. Values must match the tags Paradox Mods offers for Cities: Skylines II-->
+	<Tag Value="Code Mod" />
+	<!--Link to the forum post where the mod can be discussed-->
+	<ForumLink Value="" />
+	<!--Version of the mod-->
+	<ModVersion Value="0.1.0" />
+	<!--Recommended version of the base game to use the mod-->
+	<GameVersion Value="1.6.*" />
+	<!--Dependency for the mod, can be set multiple times-->
+	<!--Find It (required)-->
+	<Dependency Id="77240" />
+	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
+	<ChangeLog>
+First public beta: asset scan, suggested thematic libraries, Find It bridge with `lib:` search, filters, palette mode, community sharing and share codes. English and Italian.
+	</ChangeLog>
+	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
+	<ExternalLink Type="github" Url="https://github.com/blinkone/ShelveIt" />
+	<!--Supported values Public, Private, Unlisted-->
+	<AccessLevel Value="Public" />
+</Publish>

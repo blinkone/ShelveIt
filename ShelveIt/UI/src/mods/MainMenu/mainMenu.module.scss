@@ -1,0 +1,8 @@
+// Inline note under the main-menu button, in the menu's own text colour.
+.note {
+  color: var(--menuText2Normal);
+  font-size: var(--fontSizeS);
+  margin-top: 6rem;
+  margin-bottom: 6rem;
+  max-width: 420rem;
+}

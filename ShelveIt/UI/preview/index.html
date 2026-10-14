@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Shelve It preview</title>
+    <!-- The game's own stylesheet, fonts and icons, served from the install folder. -->
+    <base href="/game/" />
+    <link rel="stylesheet" href="/game/index.css" />
+    <link rel="stylesheet" href="/dist/preview.css" />
+    <style>
+      /* Preview only. None of this ships with the mod. */
+      /* The game engine loads its fonts by itself; a browser needs them declared. */
+      @font-face { font-family: Overpass; font-weight: 400; src: url("/game/Fonts/Overpass-Regular.ttf"); }
+      @font-face { font-family: Overpass; font-weight: 700; src: url("/game/Fonts/Overpass-Bold.ttf"); }
+      body { background: #5d6f63; color: var(--textColor); }
+      #backdrop { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-size: cover; background-position: center; }
+      #root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+      .pv-topleft { position: absolute; left: 10rem; top: 10rem; display: flex; flex-direction: row; }
+      .pv-ghost { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center;
+        font-size: 13rem; color: rgba(255, 255, 255, 0.8); border: 1px dashed rgba(255, 255, 255, 0.55);
+        background-color: rgba(20, 27, 34, 0.6); pointer-events: none; }
+      [class*="content_gqa"]::-webkit-scrollbar { display: none; }
+      input { font-family: inherit; outline: none; border-style: solid; border-width: 0; }
+      button { font-family: inherit; font-size: inherit; color: inherit; padding: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="backdrop"></div>
+    <div id="root"></div>
+    <script src="/dist/preview.js"></script>
+  </body>
+</html>
