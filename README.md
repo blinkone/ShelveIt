@@ -4,6 +4,8 @@ A Cities: Skylines II mod that organizes your installed assets into thematic lib
 
 If you run hundreds of asset packages, finding a coherent set of buildings for one neighbourhood means searching asset by asset. Shelve It scans what you have, proposes libraries on its own ("UK, residential medium", "Historic industry", a creator's pack) and makes them usable while you build.
 
+![Suggested libraries](ShelveIt/Properties/Screenshots/01-suggestions.png)
+
 ## Features
 
 - Asset scan: every placeable asset (buildings, props, decals) from the base game and from Paradox Mods packages.
@@ -14,6 +16,14 @@ If you run hundreds of asset packages, finding a coherent set of buildings for o
 - Palette mode: a compact view that stays open while you build. Click an asset to place it.
 - Community sharing: publish a library, browse and import libraries from other players, or exchange share codes (`SHELVE1:...`) by chat. Packages you are missing can be subscribed in one step.
 - English and Italian.
+
+## Screenshots
+
+![Library filters](ShelveIt/Properties/Screenshots/02-library-filters.png)
+
+![Palette mode](ShelveIt/Properties/Screenshots/03-palette.png)
+
+![Community tab](ShelveIt/Properties/Screenshots/04-community.png)
 
 ## Requirements
 
